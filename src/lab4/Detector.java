@@ -9,10 +9,12 @@ import java.util.ArrayList;
 
 public class Detector {
     private BufferedImage example = null;
+    private BufferedImage test_image = null;
 
-    final public void LoadImage(String fileName) {
+    final public void LoadImage(String fileName1, String fileName2) {
         try {
-            this.example = ImageIO.read(new File(fileName));
+            this.example = ImageIO.read(new File(fileName1));
+            this.test_image = ImageIO.read(new File(fileName2));
         } catch (IOException e) {
             System.err.println("Error loading the image: " + e.getMessage());
         }
@@ -31,42 +33,11 @@ public class Detector {
                 int r = (pixel >> 16) & 0xff;  // red channel
                 int g = (pixel >> 8) & 0xff;   // green channel
                 int b = pixel & 0xff;          // blue channel
-
-                // Check if the pixel is black (you may need to adjust this based on your image)
-                binaryArray[x][y] = (r + g + b) < 100 ? 0 : 1;
+                System.out.println(r + " " + g + " " + b);
+                binaryArray[x][y] = (r + g + b) < 200 ? 0 : 1;
             }
         }
-
         return binaryArray;
-    }
-
-
-    public int[][] analyzeAlphaChannel(String imagePath) {
-        try {
-            BufferedImage image = ImageIO.read(new File(imagePath));
-            int width = image.getWidth();
-            int height = image.getHeight();
-            int[][] alphaArray = new int[width][height];
-
-            for (int x = 0; x < width; x++) {
-                for (int y = 0; y < height; y++) {
-                    int pixel = image.getRGB(x, y);
-                    int alpha = (pixel >> 24) & 0xFF;
-                    System.out.print(alpha);
-                    // Check if the alpha value is 0 (fully transparent), which indicates a black pixel
-                    if (alpha == 255) {
-                        alphaArray[x][y] = 0;
-                    } else {
-                        alphaArray[x][y] = 1;
-                    }
-                }
-            }
-
-            return alphaArray;
-        } catch (IOException e) {
-            e.printStackTrace();
-            return null;
-        }
     }
 
     public static void createBlackWhiteImage(int[][] pixelArray, String outputPath) {
@@ -77,7 +48,7 @@ public class Detector {
 
         for (int x = 0; x < width; x++) {
             for (int y = 0; y < height; y++) {
-                int pixelValue = pixelArray[x][y] == 0 ? 0 : 255; // 0 for black, 255 for white
+                int pixelValue = pixelArray[x][y] == 0 ? 0 : 255;
                 int rgb = (pixelValue << 16) | (pixelValue << 8) | pixelValue;
                 image.setRGB(x, y, rgb);
             }
@@ -86,17 +57,21 @@ public class Detector {
         try {
             ImageIO.write(image, "PNG", new File(outputPath));
         } catch (IOException e) {
-            e.printStackTrace();
+            System.err.println("Error creating the image: " + e.getMessage());
         }
     }
 
 
     public static void main(String[] args) {
         Detector detector = new Detector();
-        detector.LoadImage("D:\\AGH\\2\\OOP\\src\\lab4\\magpie.tiff");
-        int[][] vec = detector.analyzeAlphaChannel("D:\\AGH\\2\\OOP\\src\\lab4\\magpie.tiff");
+        detector.LoadImage("D:\\AGH\\2\\OOP\\src\\lab4\\ref_image.tif", "D:\\AGH\\2\\OOP\\src\\lab4\\test_image.tif");
 
-//        detector.createBlackWhiteImage(vec, "D:\\AGH\\2\\OOP\\src\\lab4\\test.tiff");
+        int[][] vec_ref = detector.ImageToArray(detector.example);
+        detector.createBlackWhiteImage(vec_ref, "D:\\AGH\\2\\OOP\\src\\lab4\\ref_test.tif");
+
+        int[][] vec_test = detector.ImageToArray(detector.test_image);
+        detector.createBlackWhiteImage(vec_test, "D:\\AGH\\2\\OOP\\src\\lab4\\test_test.tif");
+
 //        System.out.print("hello");
 //        System.out.print("hello");
 //        System.out.print("hello");
