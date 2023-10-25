@@ -10,6 +10,14 @@ import java.util.ArrayList;
 public class Detector {
     private BufferedImage example = null;
     private BufferedImage test_image = null;
+    private int[][] example_arr;
+    private int[][] test_image_arr;
+
+    Detector(String fileName1, String fileName2) {
+        LoadImage(fileName1, fileName2);
+        example_arr = imageToArray(example);
+        test_image_arr = imageToArray(test_image);
+    }
 
     final public void LoadImage(String fileName1, String fileName2) {
         try {
@@ -20,7 +28,7 @@ public class Detector {
         }
     }
 
-    public int[][] ImageToArray(BufferedImage img) {
+    public int[][] imageToArray(BufferedImage img) {
         int width = img.getWidth();
         System.out.println(width);
         int height = img.getHeight();
@@ -62,24 +70,22 @@ public class Detector {
     }
 
 
+
+
+
     public static void main(String[] args) {
-        Detector detector = new Detector();
-        detector.LoadImage("D:\\AGH\\2\\OOP\\src\\lab4\\ref_image.tif", "D:\\AGH\\2\\OOP\\src\\lab4\\test_image.tif");
+        Detector detector = new Detector("D:\\AGH\\2\\OOP\\src\\lab4\\ref_image.tif", "D:\\AGH\\2\\OOP\\src\\lab4\\test_image.tif");
 
-        int[][] vec_ref = detector.ImageToArray(detector.example);
-        detector.createBlackWhiteImage(vec_ref, "D:\\AGH\\2\\OOP\\src\\lab4\\ref_test.tif");
 
-        int[][] vec_test = detector.ImageToArray(detector.test_image);
-        detector.createBlackWhiteImage(vec_test, "D:\\AGH\\2\\OOP\\src\\lab4\\test_test.tif");
 
-//        System.out.print("hello");
-//        System.out.print("hello");
-//        System.out.print("hello");
-//        for (var i : vec) {
-//            for (var j : i) {
-//                System.out.print(j);
-//            }
-//            System.out.println("\n");
-//        }
+
+
+
+//        int[][] vec_ref = detector.imageToArray(detector.example);
+//        createBlackWhiteImage(vec_ref, "D:\\AGH\\2\\OOP\\src\\lab4\\ref_test.tif");
+//
+//        int[][] vec_test = detector.imageToArray(detector.test_image);
+//        createBlackWhiteImage(vec_test, "D:\\AGH\\2\\OOP\\src\\lab4\\test_test.tif");
+
     }
 }
