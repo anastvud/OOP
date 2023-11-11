@@ -1,8 +1,8 @@
 package lab5;
 
-import java.io.File;  // Import the File class
-import java.io.FileNotFoundException;  // Import this class to handle errors
-import java.util.Scanner; // Import the Scanner class to read text files
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.util.Scanner;
 import java.util.ArrayList;
 
 
@@ -10,7 +10,6 @@ public class Maze {
 
     private final String filePath;
     private ArrayList<ArrayList<Integer>> maze = new ArrayList<>();
-
 
     Maze(String file) {
         filePath = file;
@@ -22,15 +21,46 @@ public class Maze {
             Scanner myReader = new Scanner(myObj);
             while (myReader.hasNextLine()) {
                 String data = myReader.nextLine();
+                ArrayList<Integer> row = new ArrayList<>();
                 for (int i = 0; i < data.length(); i++) {
-                    System.out.print(data.charAt(i));
+                    char cell = data.charAt(i);
+                    int value;
+                    switch (cell) {
+                        case 'W':
+                            value = -1;
+                            break;
+                        case 'C':
+                            value = 0;
+                            break;
+                        case 'S':
+                            value = 1;
+                            break;
+                        case 'F':
+                            value = -2;
+                            break;
+                        default:
+                            continue;
+                    }
+                    row.add(value);
                 }
-                System.out.println();
+                maze.add(row);
             }
+
             myReader.close();
         } catch (FileNotFoundException e) {
-            System.out.println("An error occurred.");
+            System.out.println("Error loading maze to array");
             e.printStackTrace();
+        }
+
+        printMaze();
+    }
+
+    private void printMaze() {
+        for (ArrayList<Integer> row : maze) {
+            for (Integer cell : row) {
+                System.out.print(cell + "\t");
+            }
+            System.out.println();
         }
     }
 
