@@ -1,5 +1,10 @@
 package lab5;
 
+import javax.imageio.ImageIO;
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 import java.awt.*;
 import javax.swing.*;
 import java.io.File;
@@ -33,12 +38,15 @@ public class Maze implements Runnable {
     // a solution, and by emptyCode if it has not yet been explored.
 
     final static int backgroundCode = 0;
-    final static int wallCode = -1;
+    final static int wallCode = 100;
     final static int pathCode = 2;
     final static int emptyCode = 3;
     final static int visitedCode = 4;
 
-    Color[] color; // colors associated with the preceding 5 constants;
+    private static final int WALL = 100;
+    private static final int CORRIDOR = 0;
+    private static final int PATH = 200;
+
     int rows = 41; // number of rows of cells in maze, including a wall around edges
     int columns = 41; // number of columns of cells in maze, including a wall around edges
     int border = 0; // minimum number of pixels between maze and edge of panel
@@ -57,6 +65,27 @@ public class Maze implements Runnable {
     boolean mazeExists = false; // set to true when maze[][] is valid; used in
     // redrawMaze(); set to true in createMaze(), and
     // reset to false in run()
+
+    public void createNewImage() {
+        int width = maze.length;
+        int height = maze[0].length;
+
+        BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_BYTE_GRAY);
+
+        for (int i = 0; i < maze.length; i++) {
+            for (int j = 0; j < maze[0].length; j++) {
+                int rgb = (maze[i][j] << 16) | (maze[i][j] << 8) | maze[i][j];
+                image.setRGB(i, j, rgb);
+            }
+        }
+
+        try {
+            ImageIO.write(image, "PNG", new File("D:\\AGH\\2\\OOP\\src\\lab5\\cleared_image.png"));
+        } catch (IOException e) {
+            System.err.println("Error creating the image: " + e.getMessage());
+        }
+    }
+
 
     public void loadMaze() {
         try {
@@ -130,6 +159,56 @@ public class Maze implements Runnable {
     }
 
 
+    private static boolean solveMaze(int[][] maze, int startX, int startY, int endX, int endY) {
+        return dfs(maze, startX, startY, endX, endY);
+    }
+
+    private static boolean dfs(int[][] maze, int currentX, int currentY, int endX, int endY) {
+        int rows = maze.length;
+        int columns = maze[0].length;
+
+        // Check if the current position is out of bounds or a wall
+        if (currentX < 0 || currentY < 0 || currentX >= rows || currentY >= columns || maze[currentX][currentY] == WALL) {
+            return false;
+        }
+
+        // Check if we have reached the exit
+        if (currentX == endX && currentY == endY) {
+            maze[currentX][currentY] = PATH;
+            return true;
+        }
+
+        // Mark the current position as visited
+        maze[currentX][currentY] = WALL; // Marked as visited (assuming -1 represents visited)
+
+        // Explore all possible moves: up, down, left, right
+        if (
+                dfs(maze, currentX - 1, currentY, endX, endY) ||
+                        dfs(maze, currentX + 1, currentY, endX, endY) ||
+                        dfs(maze, currentX, currentY - 1, endX, endY) ||
+                        dfs(maze, currentX, currentY + 1, endX, endY)
+        ) {
+            // If a path is found, mark the current position as part of the path
+            maze[currentX][currentY] = PATH;
+            return true;
+        }
+
+        // Backtrack: unmark the current position
+        maze[currentX][currentY] = CORRIDOR;
+
+        return false;
+    }
+
+    private static void printMaze(int[][] maze) {
+        for (int[] row : maze) {
+            for (int cell : row) {
+                System.out.print(cell + "\t");
+            }
+            System.out.println();
+        }
+    }
+
+
     public void run() {
         // run method for thread repeatedly makes a maze and then solves it
 //        try {
@@ -139,12 +218,24 @@ public class Maze implements Runnable {
 //        }
 //        while (true) {
 //            makeMaze();
+
+
             loadMaze();
-            System.out.println(solveMaze(1,0));
-            System.out.println();
-            System.out.println();
-            System.out.println();
-            printMaze();
+
+        if (solveMaze(maze, 1, 0, maze.length - 2, maze[0].length - 1)) {
+            System.out.println("Path found!");
+            printMaze(maze);
+        } else {
+            System.out.println("No path found.");
+        }
+        createNewImage();
+
+
+//            System.out.println(solveMaze(1,0));
+//            System.out.println();
+//            System.out.println();
+//            System.out.println();
+//            printMaze();
 //            synchronized (this) {
 //                try {
 //                    wait(sleepTime);
@@ -156,34 +247,32 @@ public class Maze implements Runnable {
 //        }
     }
 
-    boolean solveMaze(int row, int col) {
-        // Try to solve the maze by continuing current path from position
-        // (row,col). Return true if a solution is found. The maze is
-        // considered to be solved if the path reaches the lower right cell.
-        if (maze[row][col] == emptyCode) {
-            maze[row][col] = pathCode; // add this cell to the path
-//            repaint();
-            if (row == rows - 2 && col == columns - 1)
-                return true; // path has reached goal
-            try {
-                Thread.sleep(speedSleep);
-            } catch (InterruptedException e) {
-            }
-            if (solveMaze(row - 1, col) || // try to solve maze by extending path
-                    solveMaze(row, col - 1) || // in each possible direction
-                    solveMaze(row + 1, col) ||
-                    solveMaze(row, col + 1))
-                return true;
-            // maze can't be solved from this cell, so backtrack out of the cell
-            maze[row][col] = visitedCode; // mark cell as having been visited
-//            repaint();
-            synchronized (this) {
-                try {
-                    wait(speedSleep);
-                } catch (InterruptedException e) {
-                }
-            }
-        }
-        return false;
-    }
+//    boolean solveMaze(int row, int col) {
+//        // Try to solve the maze by continuing current path from position
+//        // (row,col). Return true if a solution is found. The maze is
+//        // considered to be solved if the path reaches the lower right cell.
+//        if (maze[row][col] == emptyCode) {
+//            maze[row][col] = pathCode; // add this cell to the path
+//            if (row == rows - 2 && col == columns - 1)
+//                return true; // path has reached goal
+//            try {
+//                Thread.sleep(speedSleep);
+//            } catch (InterruptedException e) {
+//            }
+//            if (solveMaze(row - 1, col) || // try to solve maze by extending path
+//                    solveMaze(row, col - 1) || // in each possible direction
+//                    solveMaze(row + 1, col) ||
+//                    solveMaze(row, col + 1))
+//                return true;
+//            // maze can't be solved from this cell, so backtrack out of the cell
+//            maze[row][col] = visitedCode; // mark cell as having been visited
+//            synchronized (this) {
+//                try {
+//                    wait(speedSleep);
+//                } catch (InterruptedException e) {
+//                }
+//            }
+//        }
+//        return false;
+//    }
 }
