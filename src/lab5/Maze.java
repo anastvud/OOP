@@ -1,6 +1,7 @@
 package lab5;
 
 import javax.imageio.ImageIO;
+import java.awt.Point;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -9,21 +10,14 @@ import java.util.Scanner;
 
 public class Maze implements Runnable {
 
-    // a main routine makes it possible to run this class as a program
-    public static void main(String[] args) {
-        Maze maze = new Maze();
-    }
+    private final int WALL = 1;
+    private final int CORRIDOR = 0;
+    private final int PATH = 5;
 
+    private int[][] maze;
 
-    int[][] maze;
-
-    final static int backgroundCode = 0;
-    final static int wallCode = 100;
-
-    private static final int WALL = 100;
-    private static final int CORRIDOR = 0;
-    private static final int PATH = 200;
-
+    Point start;
+    Point end;
 
     public void createNewImage() {
         int width = maze.length;
@@ -33,7 +27,18 @@ public class Maze implements Runnable {
 
         for (int i = 0; i < maze.length; i++) {
             for (int j = 0; j < maze[0].length; j++) {
-                int rgb = (maze[i][j] << 16) | (maze[i][j] << 8) | maze[i][j];
+                int rgb = 0;
+                switch (maze[i][j]) {
+                    case PATH:
+                       rgb = 3319890;
+                       break;
+                    case WALL:
+                        rgb = 0;
+                        break;
+                    case CORRIDOR:
+                        rgb = 6579300;
+                        break;
+                }
                 image.setRGB(i, j, rgb);
             }
         }
@@ -45,7 +50,6 @@ public class Maze implements Runnable {
         }
     }
 
-
     public void loadMaze() {
         try {
             File myObj = new File("D:\\AGH\\2\\OOP\\src\\lab5\\maze_txt.txt");
@@ -53,18 +57,12 @@ public class Maze implements Runnable {
 
             int numRows = 0;
             int numCols = 0;
-
-            // Count the number of rows and columns in the maze
             while (myReader.hasNextLine()) {
                 String data = myReader.nextLine();
                 numRows++;
                 numCols = data.split("\t").length;
             }
-
-            // Initialize the maze array based on the counted rows and columns
             maze = new int[numRows][numCols];
-
-            // Reset the scanner to read from the beginning of the file
             myReader = new Scanner(myObj);
 
             int row = 0;
@@ -72,20 +70,20 @@ public class Maze implements Runnable {
                 String data = myReader.nextLine();
                 String[] cells = data.split("\t");
                 for (int col = 0; col < cells.length; col++) {
-                    char cell = cells[col].charAt(0); // Get the first character after splitting
-                    int value;
+                    char cell = cells[col].charAt(0);
+                    int value = 0;
                     switch (cell) {
                         case 'W':
-                            value = wallCode;
+                            value = WALL;
                             break;
                         case 'C':
-                            value = backgroundCode;
+                            value = CORRIDOR;
                             break;
                         case 'S':
-                            value = 0;
+                            start = new Point(row, col);
                             break;
                         case 'F':
-                            value = 0;
+                            end = new Point(row, col);
                             break;
                         default:
                             continue;
@@ -94,14 +92,11 @@ public class Maze implements Runnable {
                 }
                 row++;
             }
-            System.out.println(maze.length + "  " + maze[0].length);
             myReader.close();
         } catch (FileNotFoundException e) {
             System.out.println("Error loading maze to array");
             e.printStackTrace();
         }
-
-        printMaze();
     }
 
     private void printMaze() {
@@ -118,11 +113,11 @@ public class Maze implements Runnable {
     }
 
 
-    private static boolean solveMaze(int[][] maze, int startX, int startY, int endX, int endY) {
-        return dfs(maze, startX, startY, endX, endY);
+    private boolean solveMaze(int[][] maze, Point start, Point end) {
+        return dfs(maze, start.x, start.y, end.x, end.y);
     }
 
-    private static boolean dfs(int[][] maze, int currentX, int currentY, int endX, int endY) {
+    private boolean dfs(int[][] maze, int currentX, int currentY, int endX, int endY) {
         int rows = maze.length;
         int columns = maze[0].length;
 
@@ -138,9 +133,8 @@ public class Maze implements Runnable {
         }
 
         // Mark the current position as visited
-        maze[currentX][currentY] = WALL; // Marked as visited (assuming -1 represents visited)
+        maze[currentX][currentY] = WALL;
 
-        // Explore all possible moves: up, down, left, right
         if (
                 dfs(maze, currentX - 1, currentY, endX, endY) ||
                         dfs(maze, currentX + 1, currentY, endX, endY) ||
@@ -158,7 +152,7 @@ public class Maze implements Runnable {
         return false;
     }
 
-    private static void printMaze(int[][] maze) {
+    private void printMaze(int[][] maze) {
         for (int[] row : maze) {
             for (int cell : row) {
                 System.out.print(cell + "\t");
@@ -167,19 +161,18 @@ public class Maze implements Runnable {
         }
     }
 
-
     public void run() {
-
-
-            loadMaze();
-
-        if (solveMaze(maze, 1, 0, maze.length - 2, maze[0].length - 1)) {
+        loadMaze();
+        if (solveMaze(maze, start, end)) {
             System.out.println("Path found!");
             printMaze(maze);
         } else {
-            System.out.println("No path found.");
+            System.out.println("No path found");
         }
         createNewImage();
+    }
 
+    public static void main(String[] args) {
+        Maze maze = new Maze();
     }
 }
