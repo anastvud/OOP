@@ -2,6 +2,10 @@ package lab5;
 
 import java.awt.*;
 import javax.swing.*;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.util.Scanner;
+import java.util.ArrayList;
 
 /**
  * Creates a random maze, then solves it by finding a path from the
@@ -41,7 +45,7 @@ public class Maze extends JPanel implements Runnable {
 
     Color[] color; // colors associated with the preceding 5 constants;
     int rows = 41; // number of rows of cells in maze, including a wall around edges
-    int columns = 51; // number of columns of cells in maze, including a wall around edges
+    int columns = 81; // number of columns of cells in maze, including a wall around edges
     int border = 0; // minimum number of pixels between maze and edge of panel
     int sleepTime = 5000; // wait time after solving one maze before making another
     int speedSleep = 30; // short delay between steps in making and solving maze
@@ -58,6 +62,75 @@ public class Maze extends JPanel implements Runnable {
     boolean mazeExists = false; // set to true when maze[][] is valid; used in
     // redrawMaze(); set to true in createMaze(), and
     // reset to false in run()
+
+    public void loadMaze() {
+        try {
+            File myObj = new File("D:\\AGH\\2\\OOP\\src\\lab5\\maze_txt.txt");
+            Scanner myReader = new Scanner(myObj);
+
+            int numRows = 0;
+            int numCols = 0;
+
+            // Count the number of rows and columns in the maze
+            while (myReader.hasNextLine()) {
+                String data = myReader.nextLine();
+                numRows++;
+                numCols = Math.max(numCols, data.length());
+            }
+
+            // Initialize the maze array based on the counted rows and columns
+            maze = new int[numRows][numCols];
+
+            // Reset the scanner to read from the beginning of the file
+            myReader = new Scanner(myObj);
+
+            int row = 0;
+            while (myReader.hasNextLine()) {
+                String data = myReader.nextLine();
+                for (int col = 0; col < data.length(); col++) {
+                    char cell = data.charAt(col);
+                    int value;
+                    switch (cell) {
+                        case 'W':
+                            value = -1;
+                            break;
+                        case 'C':
+                            value = 0;
+                            break;
+                        case 'S':
+                            value = 1;
+                            break;
+                        case 'F':
+                            value = -2;
+                            break;
+                        default:
+                            continue;
+                    }
+                    maze[row][col] = value;
+                }
+                row++;
+            }
+
+            myReader.close();
+        } catch (FileNotFoundException e) {
+            System.out.println("Error loading maze to array");
+            e.printStackTrace();
+        }
+
+        printMaze();
+        System.out.println(maze.length + "  " + maze[0].length);
+    }
+
+    private void printMaze() {
+        for (int[] row : maze) {
+            for (int cell : row) {
+                System.out.print(cell + "\t");
+            }
+            System.out.println();
+        }
+    }
+
+
 
     public Maze() {
         color = new Color[] {
@@ -110,13 +183,14 @@ public class Maze extends JPanel implements Runnable {
 
     public void run() {
         // run method for thread repeatedly makes a maze and then solves it
+        loadMaze();
         try {
             Thread.sleep(1000);
         } // wait a bit before starting
         catch (InterruptedException e) {
         }
         while (true) {
-            makeMaze();
+//            makeMaze();
             solveMaze(1, 1);
             synchronized (this) {
                 try {
