@@ -8,6 +8,10 @@ import java.io.IOException;
 import java.io.FileNotFoundException;
 import java.util.Scanner;
 
+/**
+ * Represents a maze solver that loads a maze from a text file, finds a path from the start to the finish,
+ * and creates an image of the cleared path.
+ */
 public class Maze implements Runnable {
 
     private final int WALL = 1;
@@ -19,6 +23,9 @@ public class Maze implements Runnable {
     Point start;
     Point end;
 
+    /**
+     * Creates a new image based on the maze and saves it as a PNG file.
+     */
     public void createNewImage() {
         int width = maze.length;
         int height = maze[0].length;
@@ -50,6 +57,9 @@ public class Maze implements Runnable {
         }
     }
 
+    /**
+     * Loads the maze from a text file and initializes the maze array.
+     */
     public void loadMaze() {
         try {
             File myObj = new File("D:\\AGH\\2\\OOP\\src\\lab5\\maze_txt.txt");
@@ -99,24 +109,33 @@ public class Maze implements Runnable {
         }
     }
 
-    private void printMaze() {
-        for (int[] row : maze) {
-            for (int cell : row) {
-                System.out.print(cell + "\t");
-            }
-            System.out.println();
-        }
-    }
-
     public Maze() {
         new Thread(this).start();
     }
 
 
+    /**
+     * Solves the maze using depth-first search.
+     *
+     * @param maze  The maze to solve.
+     * @param start The starting point.
+     * @param end   The ending point.
+     * @return True if a path is found, false otherwise.
+     */
     private boolean solveMaze(int[][] maze, Point start, Point end) {
         return dfs(maze, start.x, start.y, end.x, end.y);
     }
 
+    /**
+     * Depth-first search algorithm to find a path in the maze.
+     *
+     * @param maze      The maze to search.
+     * @param currentX  Current x-coordinate.
+     * @param currentY  Current y-coordinate.
+     * @param endX      Target x-coordinate.
+     * @param endY      Target y-coordinate.
+     * @return True if a path is found, false otherwise.
+     */
     private boolean dfs(int[][] maze, int currentX, int currentY, int endX, int endY) {
         int rows = maze.length;
         int columns = maze[0].length;
@@ -152,6 +171,11 @@ public class Maze implements Runnable {
         return false;
     }
 
+    /**
+     * Prints the maze to the console.
+     *
+     * @param maze The maze to print.
+     */
     private void printMaze(int[][] maze) {
         for (int[] row : maze) {
             for (int cell : row) {
@@ -161,6 +185,9 @@ public class Maze implements Runnable {
         }
     }
 
+    /**
+     * Runs the maze solver.
+     */
     public void run() {
         loadMaze();
         if (solveMaze(maze, start, end)) {
