@@ -1,5 +1,6 @@
 package lab6;
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 
 public class Book extends LibraryItem{
     private String author;
@@ -15,16 +16,28 @@ public class Book extends LibraryItem{
 
     @Override
     public int daysOverdue(LocalDate currentDate) {
+        if (!isReturned()) {
+            int maxHoldingDays = 14; // Two weeks for all users
+            long daysOnLoan = ChronoUnit.DAYS.between(this.borrowDate, currentDate) - 1; // Exclude the borrowing day
+            int overdueDays = (int) (daysOnLoan - maxHoldingDays);
+
+            return Math.max(0, overdueDays);
+        }
         return 0;
     }
-
     @Override
     public boolean isOverdue(LocalDate currentDate) {
-        return false;
+        return daysOverdue(currentDate) > 0;
     }
 
     @Override
     public double computeFine() {
-        return 0.0;
-    }
+        int maxHoldingDays = 14; // Two weeks for all users
+        double overdueFineRate = 0.5; // $0.5 per day
+
+        int overdueDays = daysOverdue(LocalDate.now());
+        if (overdueDays > maxHoldingDays) {
+            return overdueDays * overdueFineRate;
+        }
+        return 0.0;    }
 }

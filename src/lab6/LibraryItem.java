@@ -4,9 +4,10 @@ import java.time.LocalDate;
 abstract class LibraryItem {
     private static int id;
     private String title;
-    private LocalDate borrowDate;
+    protected LocalDate borrowDate;
     private LocalDate returnDate;
     private boolean isReturned;
+    protected String personStatus;
 
     public LibraryItem(String title, int id) {
         this.title = title;
