@@ -8,8 +8,8 @@ public class Journal extends LibraryItem {
     private String latestIssue;
     private String journalUrl;
 
-    public Journal(String title, String eISSN, String publisher, String latestIssue, String journalUrl, int libraryId) {
-        super(title, libraryId);
+    public Journal(int id, String title, String eISSN, String publisher, String latestIssue, String journalUrl) {
+        super(title, id);
         this.eISSN = eISSN;
         this.publisher = publisher;
         this.latestIssue = latestIssue;

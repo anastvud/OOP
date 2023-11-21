@@ -1,18 +1,19 @@
 package lab6;
 import java.time.LocalDate;
 
-abstract class LibraryItem {
-    private static int id;
-    private String title;
+public abstract class LibraryItem {
+    protected int id;
+    protected String title;
     protected LocalDate borrowDate;
-    private LocalDate returnDate;
-    private boolean isReturned;
+    protected LocalDate returnDate;
+    protected boolean isReturned;
     protected String personStatus;
+    protected int whoRented;
 
     public LibraryItem(String title, int id) {
         this.title = title;
         this.id = id;
-        this.isReturned = false;
+        this.isReturned = true;
     }
 
     public void setBorrowedDate(LocalDate borrowedDate) {
