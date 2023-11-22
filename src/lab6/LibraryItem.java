@@ -4,8 +4,8 @@ import java.time.LocalDate;
 public abstract class LibraryItem {
     protected int id;
     protected String title;
-    protected LocalDate borrowDate;
-    protected LocalDate returnDate;
+    protected int borrowDate;
+    protected int returnDate;
     protected boolean isReturned;
     protected String personStatus;
     protected int whoRented;
@@ -16,13 +16,17 @@ public abstract class LibraryItem {
         this.isReturned = true;
     }
 
-    public void setBorrowedDate(LocalDate borrowedDate) {
+    public void setBorrowedDate(int borrowedDate) {
         this.borrowDate = borrowedDate;
     }
 
-    public void setReturnDate(LocalDate returnDate) {
+    public void setReturnDate(int returnDate) {
         this.returnDate = returnDate;
         this.isReturned = true;
+    }
+
+    public void setPersonStatus(String personStatus) {
+        this.personStatus = personStatus;
     }
 
     public String getTitle() {
@@ -37,9 +41,9 @@ public abstract class LibraryItem {
         return isReturned;
     }
 
-    public abstract int daysOverdue(LocalDate currentDate);
+    public abstract int daysOverdue(int currentDate);
 
-    public abstract boolean isOverdue(LocalDate currentDate);
+    public abstract boolean isOverdue(int currentDate);
 
-    public abstract double computeFine();
+    public abstract double computeFine(int currentDate);
 }

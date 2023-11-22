@@ -11,17 +11,15 @@ public class Main {
         library.addUser(new User("student"));
         library.addUser(new User("staff"));
 
-//        System.out.println(library.);
-
-        library.borrowItem(0, 1, LocalDate.now().plusDays(10));
-        library.borrowItem(1, 1, LocalDate.now().plusDays(10));
-        library.borrowItem(2, 1, LocalDate.now().plusDays(10));
-        library.borrowItem(3, 1, LocalDate.now().plusDays(10));
-        library.borrowItem(4, 1, LocalDate.now().plusDays(10));
-        library.borrowItem(5, 1, LocalDate.now().plusDays(10));
-        library.borrowItem(0, 1, LocalDate.now().plusDays(10));
-        library.borrowItem(0, 1, LocalDate.now().plusDays(10));
-        library.borrowItem(1, 0, LocalDate.now().plusDays(10));
-        library.borrowItem(2, 0, LocalDate.now().plusDays(10));
+        library.borrowItem(0, 1, 10);
+        library.borrowItem(1, 1, 10);
+        library.borrowItem(2, 1, 10);
+        library.borrowItem(3, 1, 10);
+        library.borrowItem(4, 1, 10);
+        library.borrowItem(5, 1, 10);
+        library.borrowItem(0, 1, 10);
+        library.borrowItem(0, 1, 10);
+        library.borrowItem(1, 0, 10);
+        library.borrowItem(2, 0, 10);
     }
 }

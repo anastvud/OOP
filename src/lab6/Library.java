@@ -14,7 +14,6 @@ public class Library {
     private List<User> users = new ArrayList<User>(); // Assuming some list of user IDs or types
     private int currentId = 0;
 
-
     // Method to add items to the library
     public void addItem(LibraryItem item) {
         libraryItems.add(item);
@@ -79,7 +78,7 @@ public class Library {
         }
     }
 
-    public void borrowItem(int id, int clientId, LocalDate currentDate){
+    public void borrowItem(int id, int clientId, int currentDate){
         LibraryItem item = libraryItems.get(id);
         if(users.get(clientId).getStatus().equalsIgnoreCase("student") && item instanceof Book && users.get(clientId).books >= 3){
             System.out.println("Client has too many books");
@@ -95,7 +94,7 @@ public class Library {
         }
         if(item.isReturned){
             item.whoRented = users.get(clientId).getId();
-            item.borrowDate = LocalDate.now();
+            item.borrowDate = 0;
             if(item instanceof Book){
                 users.get(clientId).books++;
             }else if(item instanceof Journal){

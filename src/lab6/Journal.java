@@ -1,6 +1,4 @@
 package lab6;
-import java.time.LocalDate;
-import java.time.temporal.ChronoUnit;
 
 public class Journal extends LibraryItem {
     private String eISSN;
@@ -17,27 +15,25 @@ public class Journal extends LibraryItem {
     }
 
     @Override
-    public int daysOverdue(LocalDate currentDate) {
+    public int daysOverdue(int currentDate) {
         if (!isReturned()) {
             int maxHoldingDays = (this.personStatus.equalsIgnoreCase("student")) ? 3 : 7; // 3 days for students, 7 days for staff
-            long daysOnLoan = ChronoUnit.DAYS.between(this.borrowDate, currentDate) - 1; // Exclude the borrowing day
-            int overdueDays = (int) (daysOnLoan - maxHoldingDays);
-
+            int overdueDays = this.borrowDate - currentDate - maxHoldingDays; // Exclude the borrowing day
             return Math.max(0, overdueDays);
         }
         return 0;    }
 
     @Override
-    public boolean isOverdue(LocalDate currentDate) {
+    public boolean isOverdue(int currentDate) {
         return daysOverdue(currentDate) > 0;
     }
 
     @Override
-    public double computeFine() {
+    public double computeFine(int currentDate) {
         int maxHoldingDays = (this.personStatus.equalsIgnoreCase("student")) ? 3 : 7; // 3 days for students, 7 days for staff
         double overdueFineRate = 2.0; // $2.0 per day
 
-        int overdueDays = daysOverdue(LocalDate.now());
+        int overdueDays = daysOverdue(currentDate);
         if (overdueDays > maxHoldingDays) {
             return overdueDays * overdueFineRate;
         }
