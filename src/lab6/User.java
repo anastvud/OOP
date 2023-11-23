@@ -1,7 +1,6 @@
 package lab6;
 
 public class User {
-    private static int count = 0;
     private int id;
     private String status;
     public int books = 0;
@@ -9,8 +8,8 @@ public class User {
     public int journals = 0;
 
 
-    User(String status) {
-        this.id = count++;
+    User(int id, String status) {
+        this.id = id;
         this.status = status;
     }
 

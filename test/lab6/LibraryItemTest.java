@@ -26,7 +26,7 @@ class LibraryItemTest {
         LibraryItem book = new Book(1, "Title", "Author", "Genre", "Publisher");
         book.setBorrowedDate(10);
         int today = 26;
-        assertTrue(!book.isOverdue(today));
+        assertFalse(book.isOverdue(today));
     }
 
     @org.junit.jupiter.api.Test

@@ -1,19 +1,17 @@
 package lab6;
-import java.time.LocalDate;
 
 public abstract class LibraryItem {
     protected int id;
     protected String title;
     protected int borrowDate;
     protected int returnDate;
-    protected boolean isReturned;
+    protected boolean isReturned = true;
     protected String personStatus;
     protected int whoRented;
 
     public LibraryItem(String title, int id) {
         this.title = title;
         this.id = id;
-        this.isReturned = true;
     }
 
     public void setBorrowedDate(int borrowedDate) {
@@ -30,11 +28,11 @@ public abstract class LibraryItem {
     }
 
     public String getTitle() {
-        return title;
+        return this.title;
     }
 
     public int getLibraryId() {
-        return id;
+        return this.id;
     }
 
     public boolean isReturned() {
@@ -46,4 +44,8 @@ public abstract class LibraryItem {
     public abstract boolean isOverdue(int currentDate);
 
     public abstract double computeFine(int currentDate);
+
+    public String toString() {
+        return "ID: " + id + ", Title: " + title + ", Borrow Date: " + borrowDate + ", Return Date: " + returnDate;
+    }
 }

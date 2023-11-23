@@ -2,7 +2,6 @@ package lab6;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -11,18 +10,9 @@ import java.io.IOException;
 
 public class Library {
     private List<LibraryItem> libraryItems = new ArrayList<LibraryItem>();
-    private List<User> users = new ArrayList<User>(); // Assuming some list of user IDs or types
+    private List<User> users = new ArrayList<User>();
     private int currentId = 0;
 
-    // Method to add items to the library
-    public void addItem(LibraryItem item) {
-        libraryItems.add(item);
-    }
-
-    // Method to add users to the library
-    public void addUser(User user) {
-        users.add(user);
-    }
 
     public void loadItems(String path, int type){
         try (BufferedReader br = new BufferedReader(new FileReader(path))) {
@@ -78,6 +68,21 @@ public class Library {
         }
     }
 
+
+    Library(String pathBooks, String pathJournal, String pathFilms) {
+        // load items
+        loadItems(pathBooks, 1);
+        loadItems(pathJournal, 2);
+        loadItems(pathFilms, 3);
+
+        // create users
+        for (int i = 0; i < 100; i++) {
+            if (i < 80) users.add(new User(i, "Student"));
+            else users.add(new User(i, "Faculty"));
+        }
+    }
+
+
     public void borrowItem(int id, int clientId, int currentDate){
         LibraryItem item = libraryItems.get(id);
         if(users.get(clientId).getStatus().equalsIgnoreCase("student") && item instanceof Book && users.get(clientId).books >= 3){
@@ -105,6 +110,39 @@ public class Library {
         } else {
             System.out.println("Item is not available");
         }
+    }
+
+    public void showLoans() {
+        System.out.println("Items on Loan:");
+        for (LibraryItem item : libraryItems) {
+            if (!item.isReturned()) {
+                System.out.println(item);
+            }
+        }
+    }
+
+    public void showStatistics(int currentDate) {
+        int totalLent = 0;
+        int totalOnLoan = 0;
+        int totalOverdue = 0;
+
+        for (LibraryItem item : libraryItems) {
+            if (!item.isReturned()) {
+                totalLent++;
+
+                if (item.isOverdue(currentDate)) {
+                    totalOverdue++;
+                }
+            }
+        }
+
+        totalOnLoan = totalLent - totalOverdue;
+
+        System.out.println("\nLibrary Statistics:");
+        System.out.println("Total items lent: " + totalLent);
+        System.out.println("Total items on loan: " + totalOnLoan);
+        System.out.println("Total overdue items: " + totalOverdue);
+//        System.out.println("Total fine collected: " + totalFineCollected);
     }
 
 
