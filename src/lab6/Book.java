@@ -18,7 +18,7 @@ public class Book extends LibraryItem{
     public int daysOverdue(int currentDate) {
         if (!isReturned()) {
             int maxHoldingDays = 14; // Two weeks for all users
-            int overdueDays = this.borrowDate - currentDate - maxHoldingDays;
+            int overdueDays = currentDate - this.borrowDate - maxHoldingDays;
             return Math.max(0, overdueDays);
         }
         return 0;

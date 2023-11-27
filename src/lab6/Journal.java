@@ -18,7 +18,7 @@ public class Journal extends LibraryItem {
     public int daysOverdue(int currentDate) {
         if (!isReturned()) {
             int maxHoldingDays = (this.personStatus.equalsIgnoreCase("student")) ? 3 : 7; // 3 days for students, 7 days for staff
-            int overdueDays = this.borrowDate - currentDate - maxHoldingDays; // Exclude the borrowing day
+            int overdueDays = currentDate - this.borrowDate - maxHoldingDays;
             return Math.max(0, overdueDays);
         }
         return 0;    }

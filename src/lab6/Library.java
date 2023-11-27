@@ -9,12 +9,13 @@ import java.io.IOException;
 
 
 public class Library {
-    private List<LibraryItem> libraryItems = new ArrayList<LibraryItem>();
-    private List<User> users = new ArrayList<User>();
+    public List<LibraryItem> libraryItems = new ArrayList<>();
+    private List<User> users = new ArrayList<>();
     private int currentId = 0;
+    private int c = 0;
 
 
-    public void loadItems(String path, int type){
+    public void loadItems(String path, int type) {
         try (BufferedReader br = new BufferedReader(new FileReader(path))) {
             String line;
             line = br.readLine();
@@ -39,9 +40,9 @@ public class Library {
                         String journalpublisher = values[4];
                         String journalissueNumber = values[6];
                         String journalUrl;
-                        if(values.length == 13){
+                        if (values.length == 13) {
                             journalUrl = values[12];
-                        }else{
+                        } else {
                             journalUrl = "";
                         }
                         libraryItems.add(new Journal(currentId, journalTitle, journaleISSN, journalpublisher, journalissueNumber, journalUrl));
@@ -50,15 +51,15 @@ public class Library {
                         String filmTitle = values[1];
                         String filmGenre = values[2];
                         int i = 0;
-                        if(values[3].startsWith("\"")){
-                            while(!values[3+i].endsWith("\"")){
+                        if (values[3].startsWith("\"")) {
+                            while (!values[3 + i].endsWith("\"")) {
                                 i++;
                             }
                         }
-                        String filmDirector = values[4+i];
-                        int filmYear = Integer.parseInt(values[6+i]);
-                        int filmRuntime = Integer.parseInt(values[7+i]);
-                        double filmRating = Double.parseDouble(values[8+i]);
+                        String filmDirector = values[4 + i];
+                        int filmYear = Integer.parseInt(values[6 + i]);
+                        int filmRuntime = Integer.parseInt(values[7 + i]);
+                        double filmRating = Double.parseDouble(values[8 + i]);
                         libraryItems.add(new Film(currentId, filmTitle, filmGenre, filmDirector, filmYear, filmRuntime, filmRating));
                 }
                 currentId++;
@@ -83,32 +84,32 @@ public class Library {
     }
 
 
-    public void borrowItem(int id, int clientId, int currentDate){
+    public void borrowItem(int id, int clientId, int currentDate) {
         LibraryItem item = libraryItems.get(id);
-        if(users.get(clientId).getStatus().equalsIgnoreCase("student") && item instanceof Book && users.get(clientId).books >= 3){
-            System.out.println("Client has too many books");
+        if (users.get(clientId).getStatus().equalsIgnoreCase("student") && item instanceof Book && users.get(clientId).books.size() >= 3) {
+//            System.out.println("Client has too many books");
             return;
         }
-        if(users.get(clientId).getStatus().equalsIgnoreCase("student") && item instanceof Journal && users.get(clientId).journals >= 3){
-            System.out.println("Client has too many magazines");
+        if (users.get(clientId).getStatus().equalsIgnoreCase("student") && item instanceof Journal && users.get(clientId).journals.size() >= 3) {
+//            System.out.println("Client has too many magazines");
             return;
         }
-        if(users.get(clientId).getStatus().equalsIgnoreCase("student") && item instanceof Film && users.get(clientId).films >= 1){
-            System.out.println("Client has too many films");
+        if (users.get(clientId).getStatus().equalsIgnoreCase("student") && item instanceof Film && !users.get(clientId).films.isEmpty()) {
+//            System.out.println("Client has too many films");
             return;
         }
-        if(item.isReturned){
+        if (item.isReturned) {
             item.whoRented = users.get(clientId).getId();
-            item.borrowDate = 0;
-            if(item instanceof Book){
-                users.get(clientId).books++;
-            }else if(item instanceof Journal){
-                users.get(clientId).journals++;
-            }else if(item instanceof Film){
-                users.get(clientId).films++;
+            item.borrowDate = currentDate;
+            item.isReturned = false;
+            item.personStatus = users.get(clientId).getStatus();
+            switch (item) {
+                case Book ignored -> users.get(clientId).books.add(item);
+                case Journal ignored -> users.get(clientId).journals.add(item);
+                case Film ignored -> users.get(clientId).films.add(item);
+                case null, default -> {
+                }
             }
-        } else {
-            System.out.println("Item is not available");
         }
     }
 
@@ -125,6 +126,7 @@ public class Library {
         int totalLent = 0;
         int totalOnLoan = 0;
         int totalOverdue = 0;
+        double totalFineCollected = 0;
 
         for (LibraryItem item : libraryItems) {
             if (!item.isReturned()) {
@@ -132,6 +134,7 @@ public class Library {
 
                 if (item.isOverdue(currentDate)) {
                     totalOverdue++;
+                    totalFineCollected += item.computeFine(currentDate);
                 }
             }
         }
@@ -142,139 +145,89 @@ public class Library {
         System.out.println("Total items lent: " + totalLent);
         System.out.println("Total items on loan: " + totalOnLoan);
         System.out.println("Total overdue items: " + totalOverdue);
-//        System.out.println("Total fine collected: " + totalFineCollected);
+        System.out.println("Total fine collected: " + totalFineCollected);
+    }
+
+    public void returnItem(int userId) {
+        User currUser = users.get(userId);
+        if (!currUser.films.isEmpty()) {
+            LibraryItem borrowedFilm = libraryItems.get(currUser.films.get(0).getLibraryId());
+            borrowedFilm.isReturned = true;
+            currUser.films.remove(borrowedFilm);
+        } else if (!currUser.journals.isEmpty()) {
+            LibraryItem borrowedJournal = libraryItems.get(currUser.journals.get(0).getLibraryId());
+            borrowedJournal.isReturned = true;
+            currUser.journals.remove(borrowedJournal);
+        } else if (!currUser.books.isEmpty()) {
+            LibraryItem borrowedBook = libraryItems.get(currUser.books.get(0).getLibraryId());
+            borrowedBook.isReturned = true;
+            currUser.books.remove(borrowedBook);
+        }
+    }
+
+    public void dailyOperation(int day) {
+//        Random rand = new Random();
+
+        // 5 books
+        for (int i = 0; i < 5; i++) {
+            Random rand = new Random();
+            int userId = rand.nextInt(100);
+            int itemId = rand.nextInt(libraryItems.size());
+            while (!(libraryItems.get(itemId) instanceof Book)) {
+                itemId = rand.nextInt(libraryItems.size());
+            }
+            borrowItem(itemId, userId, day);
+        }
+
+        // 5 films
+        for (int i = 0; i < 5; i++) {
+            Random rand = new Random();
+            int userId = rand.nextInt(100);
+            int itemId = rand.nextInt(libraryItems.size());
+            while (!(libraryItems.get(itemId) instanceof Film)) {
+                itemId = rand.nextInt(libraryItems.size());
+            }
+            borrowItem(itemId, userId, day);
+        }
+
+        // 8 journals
+        for (int i = 0; i < 8; i++) {
+            Random rand = new Random();
+            int userId = rand.nextInt(100);
+            int itemId = rand.nextInt(libraryItems.size());
+            while (!(libraryItems.get(itemId) instanceof Journal)) {
+                itemId = rand.nextInt(libraryItems.size());
+            }
+            borrowItem(itemId, userId, day);
+        }
+
+
+        // Simulate returning
+        for (int i = 0; i < 2; i++) {
+            Random rand = new Random();
+
+            int userId = rand.nextInt(100);
+            User u = users.get(userId);
+            while (!u.films.isEmpty() || !u.books.isEmpty() || !u.journals.isEmpty()) {
+                userId = rand.nextInt(100);
+                u = users.get(userId);
+            }
+
+//            returnItem(u.getId());
+
+        }
+        showStatistics(day);
+        System.out.println(c++);
+    }
+
+    public void simulateYear() {
+        for (int i = 0; i < 365; i++) {
+            dailyOperation(i);
+        }
+
+        // Show final statistics at the end of the year
+//        showStatistics(365);
     }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    // Method to borrow any item on any day
-//    public void borrowItem(int userId, double alphaBook, double alphaJournal, double alphaFilm, double beta) {
-//        Random rand = new Random();
-//        double randomNum = rand.nextDouble();
-//
-//        if (users.contains(userId)) {
-//            if (randomNum < alphaBook) {
-//                // Borrow a book
-//                LibraryItem book = getRandomItem("Book");
-//                if (book != null && !book.isReturned()) {
-//                    book.setBorrowedDate(LocalDate.now());
-//                    int maxHoldingDays = book.getMaxHoldingDays(getUserType(userId));
-//                    book.setReturnDate(LocalDate.now().plusDays(maxHoldingDays));
-//                }
-//            } else if (randomNum < alphaBook + alphaJournal) {
-//                // Borrow a journal
-//                LibraryItem journal = getRandomItem("Journal");
-//                if (journal != null && !journal.isReturned()) {
-//                    journal.setBorrowedDate(LocalDate.now());
-//                    int maxHoldingDays = journal.getMaxHoldingDays(getUserType(userId));
-//                    journal.setReturnDate(LocalDate.now().plusDays(maxHoldingDays));
-//                }
-//            } else if (randomNum < alphaBook + alphaJournal + alphaFilm) {
-//                // Borrow a film
-//                LibraryItem film = getRandomItem("Film");
-//                if (film != null && !film.isReturned()) {
-//                    film.setBorrowedDate(LocalDate.now());
-//                    int maxHoldingDays = film.getMaxHoldingDays(getUserType(userId));
-//                    film.setReturnDate(LocalDate.now().plusDays(maxHoldingDays));
-//                }
-//            }
-//        }
-//
-//        // Simulate return with probability beta
-//        if (rand.nextDouble() < beta) {
-//            returnRandomItem(userId);
-//        }
-//    }
-//
-//    // Helper method to get a random item of a specific type
-//    private LibraryItem getRandomItem(String itemType) {
-//        List<LibraryItem> availableItems = new ArrayList<>();
-//        for (LibraryItem item : libraryItems) {
-//            if (!item.isReturned() && item.getItemType().equalsIgnoreCase(itemType)) {
-//                availableItems.add(item);
-//            }
-//        }
-//
-//        if (!availableItems.isEmpty()) {
-//            Random rand = new Random();
-//            return availableItems.get(rand.nextInt(availableItems.size()));
-//        }
-//
-//        return null;
-//    }
-//
-//    // Helper method to get the user type (assuming some logic here)
-//    private String getUserType(String userId) {
-//        // Example logic, you may adapt this based on your user management
-//        return (userId.startsWith("student")) ? "student" : "staff";
-//    }
-//
-//    // Helper method to return a random item for a specific user
-//    private void returnRandomItem(String userId) {
-//        List<LibraryItem> borrowedItems = new ArrayList<>();
-//        for (LibraryItem item : libraryItems) {
-//            if (!item.isReturned() && item.getBorrowerId().equalsIgnoreCase(userId)) {
-//                borrowedItems.add(item);
-//            }
-//        }
-//
-//        if (!borrowedItems.isEmpty()) {
-//            Random rand = new Random();
-//            LibraryItem returnedItem = borrowedItems.get(rand.nextInt(borrowedItems.size()));
-//            returnedItem.setReturnDate(LocalDate.now());
-//        }
-//    }
 }

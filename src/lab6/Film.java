@@ -22,7 +22,7 @@ public class Film extends LibraryItem {
     public int daysOverdue(int currentDate) {
         if (!isReturned()) {
             int maxHoldingDays = 2; // Two days for all users
-            int overdueDays = this.borrowDate - currentDate - maxHoldingDays; // Exclude the borrowing day
+            int overdueDays = currentDate - this.borrowDate - maxHoldingDays;
             return Math.max(0, overdueDays);
         }
         return 0;    }

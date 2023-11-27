@@ -4,7 +4,7 @@ public abstract class LibraryItem {
     protected int id;
     protected String title;
     protected int borrowDate;
-    protected int returnDate;
+    protected int returnDate = -1;
     protected boolean isReturned = true;
     protected String personStatus;
     protected int whoRented;
