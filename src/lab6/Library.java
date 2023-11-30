@@ -12,7 +12,7 @@ public class Library {
     public List<LibraryItem> libraryItems = new ArrayList<>();
     private List<User> users = new ArrayList<>();
     private int currentId = 0;
-    private int c = 0;
+    private int dayOfYear = 0;
 
 
     public void loadItems(String path, int type) {
@@ -99,10 +99,10 @@ public class Library {
             return;
         }
         if (item.isReturned) {
-            item.whoRented = users.get(clientId).getId();
             item.borrowDate = currentDate;
             item.isReturned = false;
             item.personStatus = users.get(clientId).getStatus();
+            item.whoRented = users.get(clientId).getId();
             switch (item) {
                 case Book ignored -> users.get(clientId).books.add(item);
                 case Journal ignored -> users.get(clientId).journals.add(item);
@@ -154,11 +154,13 @@ public class Library {
             LibraryItem borrowedFilm = libraryItems.get(currUser.films.get(0).getLibraryId());
             borrowedFilm.isReturned = true;
             currUser.films.remove(borrowedFilm);
-        } else if (!currUser.journals.isEmpty()) {
+        }
+        if (!currUser.journals.isEmpty()) {
             LibraryItem borrowedJournal = libraryItems.get(currUser.journals.get(0).getLibraryId());
             borrowedJournal.isReturned = true;
             currUser.journals.remove(borrowedJournal);
-        } else if (!currUser.books.isEmpty()) {
+        }
+        if (!currUser.books.isEmpty()) {
             LibraryItem borrowedBook = libraryItems.get(currUser.books.get(0).getLibraryId());
             borrowedBook.isReturned = true;
             currUser.books.remove(borrowedBook);
@@ -207,17 +209,11 @@ public class Library {
             Random rand = new Random();
 
             int userId = rand.nextInt(100);
-            User u = users.get(userId);
-            while (!u.films.isEmpty() || !u.books.isEmpty() || !u.journals.isEmpty()) {
-                userId = rand.nextInt(100);
-                u = users.get(userId);
-            }
-
-//            returnItem(u.getId());
+            returnItem(userId);
 
         }
         showStatistics(day);
-        System.out.println(c++);
+        System.out.println("Statistics day " + dayOfYear++);
     }
 
     public void simulateYear() {
@@ -226,7 +222,7 @@ public class Library {
         }
 
         // Show final statistics at the end of the year
-//        showStatistics(365);
+        showStatistics(364);
     }
 
 

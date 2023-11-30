@@ -4,7 +4,6 @@ public abstract class LibraryItem {
     protected int id;
     protected String title;
     protected int borrowDate;
-    protected int returnDate = -1;
     protected boolean isReturned = true;
     protected String personStatus;
     protected int whoRented;
@@ -16,11 +15,6 @@ public abstract class LibraryItem {
 
     public void setBorrowedDate(int borrowedDate) {
         this.borrowDate = borrowedDate;
-    }
-
-    public void setReturnDate(int returnDate) {
-        this.returnDate = returnDate;
-        this.isReturned = true;
     }
 
     public void setPersonStatus(String personStatus) {
@@ -46,6 +40,6 @@ public abstract class LibraryItem {
     public abstract double computeFine(int currentDate);
 
     public String toString() {
-        return "ID: " + id + ", Title: " + title + ", Borrow Date: " + borrowDate + ", Return Date: " + returnDate;
+        return "ID: " + id + ", Title: " + title + ", Borrow Date: " + borrowDate;
     }
 }
