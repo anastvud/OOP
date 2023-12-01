@@ -3,7 +3,7 @@ package lab6;
 import java.util.ArrayList;
 import java.util.List;
 
-public class User {
+abstract class User implements IUser {
     private int id;
     private String status;
     public List<LibraryItem> books = new ArrayList<LibraryItem>();
@@ -22,5 +22,10 @@ public class User {
 
     public String getStatus() {
         return this.status;
+    }
+
+    @Override
+    public String toString() {
+        return "User: " + id + ", status: " + status;
     }
 }

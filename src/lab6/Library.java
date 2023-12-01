@@ -9,10 +9,11 @@ import java.io.IOException;
 
 
 public class Library {
-    public List<LibraryItem> libraryItems = new ArrayList<>();
+    private List<LibraryItem> libraryItems = new ArrayList<>();
     private List<User> users = new ArrayList<>();
     private int currentId = 0;
     private int dayOfYear = 0;
+    private double maxDebt = 50.0;
 
 
     public void loadItems(String path, int type) {
@@ -78,24 +79,25 @@ public class Library {
 
         // create users
         for (int i = 0; i < 100; i++) {
-            if (i < 80) users.add(new User(i, "Student"));
-            else users.add(new User(i, "Faculty"));
+            if (i < 80) users.add(new Student(i, "Student"));
+            else users.add(new Staff(i, "Faculty"));
         }
     }
 
 
     public void borrowItem(int id, int clientId, int currentDate) {
         LibraryItem item = libraryItems.get(id);
-        if (users.get(clientId).getStatus().equalsIgnoreCase("student") && item instanceof Book && users.get(clientId).books.size() >= 3) {
-//            System.out.println("Client has too many books");
+        if (currentDate == 35 || currentDate == 300) {
+            System.out.println("User fine: " + users.get(clientId).userFine(currentDate));
+        }
+        if (users.get(clientId).getStatus().equalsIgnoreCase("student") && item instanceof Book && users.get(clientId).books.size() >= 3 ||
+                users.get(clientId).getStatus().equalsIgnoreCase("student") && item instanceof Journal && users.get(clientId).journals.size() >= 3 ||
+                users.get(clientId).getStatus().equalsIgnoreCase("student") && item instanceof Film && !users.get(clientId).films.isEmpty()) {
+//                System.out.println("Client has too many...");
             return;
         }
-        if (users.get(clientId).getStatus().equalsIgnoreCase("student") && item instanceof Journal && users.get(clientId).journals.size() >= 3) {
-//            System.out.println("Client has too many magazines");
-            return;
-        }
-        if (users.get(clientId).getStatus().equalsIgnoreCase("student") && item instanceof Film && !users.get(clientId).films.isEmpty()) {
-//            System.out.println("Client has too many films");
+        if (users.get(clientId).userFine(currentDate) > maxDebt) {
+//            System.out.println("Client has too big fine already...");
             return;
         }
         if (item.isReturned) {
@@ -109,6 +111,14 @@ public class Library {
                 case Film ignored -> users.get(clientId).films.add(item);
                 case null, default -> {
                 }
+            }
+        }
+    }
+
+    public void usersWithLateReturns(int day) {
+        for (User u : users) {
+            if (u.userFine(day) > 0) {
+                System.out.println(u);
             }
         }
     }
@@ -168,8 +178,6 @@ public class Library {
     }
 
     public void dailyOperation(int day) {
-//        Random rand = new Random();
-
         // 5 books
         for (int i = 0; i < 5; i++) {
             Random rand = new Random();
@@ -203,7 +211,6 @@ public class Library {
             borrowItem(itemId, userId, day);
         }
 
-
         // Simulate returning
         for (int i = 0; i < 2; i++) {
             Random rand = new Random();
@@ -212,18 +219,21 @@ public class Library {
             returnItem(userId);
 
         }
-        showStatistics(day);
-        System.out.println("Statistics day " + dayOfYear++);
+//        showStatistics(day);
+//        System.out.println("Statistics day " + dayOfYear++);
     }
 
     public void simulateYear() {
         for (int i = 0; i < 365; i++) {
             dailyOperation(i);
+            if (i == 35 || i == 300) {
+                System.out.println("Users with late returns on day " + i);
+                usersWithLateReturns(i);
+                showStatistics(i);
+            }
         }
 
         // Show final statistics at the end of the year
         showStatistics(364);
     }
-
-
 }
