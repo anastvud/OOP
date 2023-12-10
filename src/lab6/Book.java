@@ -2,7 +2,7 @@ package lab6;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 
-public class Book extends LibraryItem{
+public final class Book extends LibraryItem{
     private String author;
     private String genre;
     private String publisher;

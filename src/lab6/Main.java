@@ -1,6 +1,6 @@
 package lab6;
 
-public class Main {
+public final class Main {
     public static void main(String[] args) {
         Library library = new Library(
                 "D:\\AGH\\2\\OOP\\src\\lab6\\books.csv",

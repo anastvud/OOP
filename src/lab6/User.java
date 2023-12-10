@@ -3,7 +3,7 @@ package lab6;
 import java.util.ArrayList;
 import java.util.List;
 
-abstract class User implements IUser {
+abstract sealed class User implements IUser permits Student, Staff{
     private int id;
     private String status;
     public List<LibraryItem> books = new ArrayList<LibraryItem>();

@@ -1,6 +1,6 @@
 package lab6;
 
-public class Student extends User{
+public final class Student extends User{
     Student(int id, String status) {
         super(id, status);
     }

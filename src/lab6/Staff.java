@@ -1,6 +1,6 @@
 package lab6;
 
-public class Staff extends User implements IUser{
+public final class Staff extends User {
     Staff(int id, String status) {
         super(id, status);
     }

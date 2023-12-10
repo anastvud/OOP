@@ -2,7 +2,7 @@ package lab6;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 
-public class Film extends LibraryItem {
+public final class Film extends LibraryItem {
     private String genre;
     private String director;
     private int year;

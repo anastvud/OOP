@@ -8,7 +8,7 @@ import java.util.Random;
 import java.io.IOException;
 
 
-public class Library {
+public final class Library {
     private List<LibraryItem> libraryItems = new ArrayList<>();
     private List<User> users = new ArrayList<>();
     private int currentId = 0;
@@ -72,23 +72,80 @@ public class Library {
 
 
     Library(String pathBooks, String pathJournal, String pathFilms) {
+        oneTimeInitialization.run();
+
         // load items
-        loadItems(pathBooks, 1);
-        loadItems(pathJournal, 2);
-        loadItems(pathFilms, 3);
+//        loadItems(pathBooks, 1);
+//        loadItems(pathJournal, 2);
+//        loadItems(pathFilms, 3);
 
         // create users
         for (int i = 0; i < 100; i++) {
             if (i < 80) users.add(new Student(i, "Student"));
             else users.add(new Staff(i, "Faculty"));
         }
+
+
     }
+
+    // Internal class representing a library record
+    class LibraryRecord {
+        private int itemId;
+        private int userId;
+        private int borrowDate;
+
+        public LibraryRecord(int itemId, int userId, int borrowDate) {
+            this.itemId = itemId;
+            this.userId = userId;
+            this.borrowDate = borrowDate;
+        }
+
+        public int getItemId() {
+            return itemId;
+        }
+
+        public int getUserId() {
+            return userId;
+        }
+
+        public int getBorrowDate() {
+            return borrowDate;
+        }
+
+        public void displayLibraryRecord() {
+            System.out.println("Library Record - Item ID: " + itemId +
+                    ", User ID: " + userId +
+                    ", Borrow Date: " + borrowDate);
+        }
+    }
+
+
+    private Runnable oneTimeInitialization = new Runnable() {
+        private boolean initialized = false;
+
+        @Override
+        public void run() {
+            if (!initialized) {
+                // Perform one-time initialization tasks here
+                System.out.println("Library data initialized.");
+
+                // Example: Load initial items into the library
+                loadItems("D:\\AGH\\2\\OOP\\src\\lab6\\books.csv", 1);
+                loadItems("D:\\AGH\\2\\OOP\\src\\lab6\\jlist.csv", 2);
+                loadItems("D:\\AGH\\2\\OOP\\src\\lab6\\movies.csv", 3);
+
+                initialized = true;
+            } else {
+                System.out.println("Library data already initialized.");
+            }
+        }
+    };
 
 
     public void borrowItem(int id, int clientId, int currentDate) {
         LibraryItem item = libraryItems.get(id);
         if (currentDate == 35 || currentDate == 300) {
-            System.out.println("User fine: " + users.get(clientId).userFine(currentDate));
+            System.out.println("User " + clientId + " fine: " + users.get(clientId).userFine(currentDate));
         }
         if (users.get(clientId).getStatus().equalsIgnoreCase("student") && item instanceof Book && users.get(clientId).books.size() >= 3 ||
                 users.get(clientId).getStatus().equalsIgnoreCase("student") && item instanceof Journal && users.get(clientId).journals.size() >= 3 ||
@@ -230,6 +287,12 @@ public class Library {
                 System.out.println("Users with late returns on day " + i);
                 usersWithLateReturns(i);
                 showStatistics(i);
+
+                // internal class usage
+                LibraryRecord libraryRecord = new LibraryRecord(123, 45, 100);
+
+                // Accessing LibraryRecord members and methods
+                libraryRecord.displayLibraryRecord();
             }
         }
 

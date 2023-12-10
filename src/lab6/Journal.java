@@ -1,6 +1,6 @@
 package lab6;
 
-public class Journal extends LibraryItem {
+public final class Journal extends LibraryItem {
     private String eISSN;
     private String publisher;
     private String latestIssue;

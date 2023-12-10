@@ -1,6 +1,6 @@
 package lab6;
 
-public abstract class LibraryItem {
+public sealed abstract class LibraryItem permits Book, Film, Journal{
     protected int id;
     protected String title;
     protected int borrowDate;
