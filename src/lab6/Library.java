@@ -32,7 +32,7 @@ public class Library {
                         } else {
                             bookPublisher = "";
                         }
-                        libraryItems.add(new Book(currentId, bookAuthor, bookTitle, bookGenre, bookPublisher));
+                        libraryItems.add(new Book(currentId, bookAuthor, bookTitle, bookGenre, bookPublisher, 100, 9));
                         break;
                     case 2:
                         String journalTitle = values[0];
@@ -72,9 +72,9 @@ public class Library {
 
     Library(String pathBooks, String pathJournal, String pathFilms) {
         // load items
-        loadItems(pathBooks, 1);
-        loadItems(pathJournal, 2);
-        loadItems(pathFilms, 3);
+//        loadItems(pathBooks, 1);
+//        loadItems(pathJournal, 2);
+//        loadItems(pathFilms, 3);
 
         // create users
         for (int i = 0; i < 100; i++) {
