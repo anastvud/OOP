@@ -3,6 +3,8 @@ package lab11;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.EmptyStackException;
+import java.util.Stack;
 
 class SyntaxError extends Exception {
     public SyntaxError(String message) {
@@ -56,45 +58,73 @@ public class Main {
     private static void analyzeLine(String line) throws SyntaxError, ZeroDivisionError, UndefinedVariableError, IntegerLimitError, IllegalCharacterError {
         line = line.trim();
         if (line.isEmpty()) {
-            return; // Empty line
+            return;
         }
 
-//        String[] p = line.split("=");
-//
-//        if (p.length != 2) {
-//            throw new SyntaxError("= expected");
-//        }
-
-        // Check for illegal characters
         if (!line.matches("[0-9a-zA-Z+\\-*/()=]+")) {
-            throw new IllegalCharacterError(line + "Illegal characters");
+            throw new IllegalCharacterError(line + " illegal characters");
         }
 
-        // Check for syntax errors
-        if (!line.matches("^[0-9+\\-*/()=]+$")) {
-            throw new SyntaxError("Syntax error in the line: " + line);
+        if (line.matches("^[^=]*$")) {
+            throw new SyntaxError(line + " = expected");
         }
 
-        // Check for zero division
-        if (line.contains("/0=")) {
-            throw new ZeroDivisionError("Zero Division Error in the line: " + line);
-        }
 
-        // Check for undefined variable
-        if (line.matches(".*[a-zA-Z]+.*")) {
-            throw new UndefinedVariableError("Runtime error: Undefined variable in the line: " + line);
-        }
-
-        // Check for integer limit (>32-bit required)
-        if (line.matches(".*[0-9]+/[0-9]+=[0-9]+.*")) {
-            String[] parts = line.split("/");
-            long numerator = Long.parseLong(parts[0]);
-            long denominator = Long.parseLong(parts[1].split("=")[0]);
-            if (numerator > Integer.MAX_VALUE || denominator > Integer.MAX_VALUE) {
-                throw new IntegerLimitError("Integer limit (>32-bit required) in the line: " + line);
+        Stack<Character> stack = new Stack<>();
+        for (char c : line.toCharArray()) {
+            if (c == '(') {
+                stack.push(c);
+            } else if (c == ')') {
+                try {
+                    stack.pop();
+                } catch (EmptyStackException e) {
+                    throw new SyntaxError(line + " ) expected");
+                }
             }
         }
 
+        if (!stack.isEmpty()) {
+            throw new SyntaxError(line + " ) expected");
+        }
 
+        if (line.contains("/0=")) {
+            throw new ZeroDivisionError(line + " Zero Division Error");
+        }
+
+        if (line.matches(".*[a-zA-Z]+.*")) {
+            throw new UndefinedVariableError(line + " Runtime error: Undefined variable");
+        }
+
+        //do the math
+        String[] p = line.split("=");
+        String expression = p[0].trim();
+        double calculatedResult = evaluateExpression(expression);
+        System.out.println(line + calculatedResult);
+
+    }
+
+    private static double evaluateExpression(String expression) throws IntegerLimitError {
+        String[] tokens = expression.split("[+\\-*/]");
+        char operator = expression.replaceAll("[0-9]", "").charAt(0);
+
+        double operand1 = Double.parseDouble(tokens[0]);
+        double operand2 = Double.parseDouble(tokens[1]);
+
+        if (operand1 > Integer.MAX_VALUE || operand2 > Integer.MAX_VALUE) {
+            throw new IntegerLimitError(expression + " integer limit (>32-bit required)");
+        }
+
+        switch (operator) {
+            case '+':
+                return operand1 + operand2;
+            case '-':
+                return operand1 - operand2;
+            case '*':
+                return operand1 * operand2;
+            case '/':
+                return operand1 / operand2;
+            default:
+                return 0.0;
+        }
     }
 }
