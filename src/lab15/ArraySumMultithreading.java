@@ -1,7 +1,7 @@
 package lab15;
 import java.util.Random;
 
-class PartialSum implements Runnable {
+class PartialSum implements Runnable  {
     private int[] array;
     private int start;
     private int end;
@@ -24,19 +24,24 @@ class PartialSum implements Runnable {
             partialSum += array[i];
         }
     }
-}
 
-public class ArraySumMultithreading {
-    public static void main(String[] args) throws InterruptedException {
-        int N = 10000; // array size
-        int K = 4;     // number of threads
+    public static void Sum(int N, int[] array) {
+        long startTime, endTime;
+        long totalSumRunnable = 0;
+        startTime = System.currentTimeMillis();
 
-        int[] array = new int[N];
-        fillArrayWithRandomNumbers(array);
+        for (int i = 0; i < N; i++) {
+            totalSumRunnable += array[i];
+        }
+        endTime = System.currentTimeMillis();
+        System.out.println("Using normal algorithm: ");
+        System.out.println("Total sum: " + totalSumRunnable);
+        System.out.println("Time taken: " + (endTime - startTime) + " milliseconds\n");
+    }
 
+    public static void SumRunnableInterface(int N, int K, int[] array) throws InterruptedException {
         long startTime, endTime;
 
-        // Using Runnable interface
         PartialSum[] partialSums = new PartialSum[K];
         Thread[] threads = new Thread[K];
 
@@ -59,11 +64,15 @@ public class ArraySumMultithreading {
         }
 
         endTime = System.currentTimeMillis();
-        System.out.println("Using Runnable interface:");
+        System.out.println("Using Runnable interface: ");
         System.out.println("Total sum: " + totalSumRunnable);
         System.out.println("Time taken: " + (endTime - startTime) + " milliseconds\n");
+    }
 
-        // Using Thread class
+    public static void SumThreadClass(int N, int K, int[] array) throws InterruptedException {
+        long startTime, endTime;
+        int m = N / K;
+
         PartialSum[] partialSumsThread = new PartialSum[K];
         CustomThread[] customThreads = new CustomThread[K];
 
@@ -85,16 +94,25 @@ public class ArraySumMultithreading {
         }
 
         endTime = System.currentTimeMillis();
-        System.out.println("Using Thread class:");
+        System.out.println("Using Thread class: ");
         System.out.println("Total sum: " + totalSumThread);
-        System.out.println("Time taken: " + (endTime - startTime) + " milliseconds");
+        System.out.println("Time taken: " + (endTime - startTime) + " milliseconds\n");
     }
-
     private static void fillArrayWithRandomNumbers(int[] array) {
         Random random = new Random();
         for (int i = 0; i < array.length; i++) {
-            array[i] = random.nextInt(10000);
+            array[i] = random.nextInt(100000);
         }
+    }
+    public static void main(String[] args) throws InterruptedException {
+        int N = 100000;
+        int K = 4;
+
+        int[] array = new int[N];
+        fillArrayWithRandomNumbers(array);
+        SumRunnableInterface(N, K, array);
+        SumThreadClass(N, K, array);
+        Sum(N, array);
     }
 }
 
